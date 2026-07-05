@@ -16,22 +16,31 @@ class ExpedientTrafficLightService
     ): TrafficLight {
 
         if ($expedient->currentDeclaration()->exists()) {
+
             return TrafficLight::GREEN;
+
         }
 
-        if (! $this->completed($expedient, ChecklistCode::SALES)) {
+        if (! $this->completed($expedient, ChecklistCode::VENTAS)) {
+
             return TrafficLight::RED;
+
         }
 
-        if (! $this->completed($expedient, ChecklistCode::PURCHASES)) {
+        if (! $this->completed($expedient, ChecklistCode::COMPRAS)) {
+
             return TrafficLight::YELLOW;
+
         }
 
-        if (! $this->completed($expedient, ChecklistCode::TAX)) {
+        if (! $this->completed($expedient, ChecklistCode::TRIBUTACION)) {
+
             return TrafficLight::AMBER;
+
         }
 
         return TrafficLight::BLUE;
+
     }
 
     private function completed(
@@ -69,8 +78,11 @@ class ExpedientTrafficLightService
             ->whereHas('question', function ($query) use ($checklist) {
 
                 $query->where(
+
                     'checklist_id',
+
                     $checklist->id
+
                 );
 
             })
@@ -78,6 +90,10 @@ class ExpedientTrafficLightService
             ->count();
 
         return $questions > 0
-            && $questions === $answers;
+
+            &&
+
+            $questions === $answers;
+
     }
 }

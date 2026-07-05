@@ -14,57 +14,21 @@ class ChecklistSeeder extends Seeder
         $checklists = [
 
             [
-                'code' => 'COMPRAS',
-                'name' => 'Registro de Compras',
-                'description' => 'Validación del registro de compras mensual.',
-            ],
-
-            [
                 'code' => 'VENTAS',
-                'name' => 'Registro de Ventas',
-                'description' => 'Validación del registro de ventas mensual.',
+                'name' => 'Ventas',
+                'description' => 'Revisión del registro de ventas.',
             ],
 
             [
-                'code' => 'BANCOS',
-                'name' => 'Conciliación Bancaria',
-                'description' => 'Revisión de movimientos y conciliaciones bancarias.',
+                'code' => 'COMPRAS',
+                'name' => 'Compras',
+                'description' => 'Revisión del registro de compras.',
             ],
 
             [
-                'code' => 'PLE',
-                'name' => 'Libros Electrónicos',
-                'description' => 'Validación previa al envío de libros electrónicos.',
-            ],
-
-            [
-                'code' => 'PDT621',
-                'name' => 'PDT 621',
-                'description' => 'Revisión previa a la declaración mensual.',
-            ],
-
-            [
-                'code' => 'PLANILLA',
-                'name' => 'Planilla',
-                'description' => 'Control de remuneraciones y obligaciones laborales.',
-            ],
-
-            [
-                'code' => 'DETRACCIONES',
-                'name' => 'Detracciones',
-                'description' => 'Validación de depósitos de detracciones.',
-            ],
-
-            [
-                'code' => 'RETENCIONES',
-                'name' => 'Retenciones y Percepciones',
-                'description' => 'Control de retenciones y percepciones aplicadas.',
-            ],
-
-            [
-                'code' => 'CIERRE',
-                'name' => 'Cierre Contable',
-                'description' => 'Revisión final antes de declarar el período.',
+                'code' => 'TRIBUTACION',
+                'name' => 'Tributación',
+                'description' => 'Validaciones tributarias previas al envío al contador.',
             ],
 
         ];

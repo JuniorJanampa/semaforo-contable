@@ -26,6 +26,14 @@ class Expedient extends Model
 
         'traffic_light',
 
+        'sales_completed_at',
+
+        'purchases_completed_at',
+
+        'tax_completed_at',
+
+        'assistant_observation',
+
     ];
 
     protected function casts(): array
@@ -33,6 +41,12 @@ class Expedient extends Model
         return [
 
             'traffic_light' => TrafficLight::class,
+
+            'sales_completed_at' => 'datetime',
+
+            'purchases_completed_at' => 'datetime',
+
+            'tax_completed_at' => 'datetime',
 
         ];
     }
@@ -135,5 +149,20 @@ class Expedient extends Model
     public function isDeclared(): bool
     {
         return $this->declarations()->exists();
+    }
+
+    public function salesCompleted(): bool
+    {
+        return $this->sales_completed_at !== null;
+    }
+
+    public function purchasesCompleted(): bool
+    {
+        return $this->purchases_completed_at !== null;
+    }
+
+    public function taxCompleted(): bool
+    {
+        return $this->tax_completed_at !== null;
     }
 }

@@ -22,98 +22,98 @@
 
     </div>
 
-    @if($expedient->traffic_light)
+    @switch($expedient->traffic_light?->value)
 
-        @switch($expedient->traffic_light->value)
+        @case('RED')
 
-            @case('RED')
+            <x-badge-status color="danger">
 
-                <x-badge-status color="danger">
+                Falta revisar
 
-                    Rojo
+            </x-badge-status>
 
-                </x-badge-status>
+            @break
 
-                @break
+        @case('YELLOW')
 
-            @case('YELLOW')
+            <x-badge-status color="warning">
 
-                <x-badge-status color="warning">
+                Ventas revisadas
 
-                    Amarillo
+            </x-badge-status>
 
-                </x-badge-status>
+            @break
 
-                @break
+        @case('AMBER')
 
-            @case('AMBER')
+            <x-badge-status color="orange">
 
-                <x-badge-status color="orange">
+                Compras revisadas
 
-                    Ámbar
+            </x-badge-status>
 
-                </x-badge-status>
+            @break
 
-                @break
+        @case('BLUE')
 
-            @case('BLUE')
+            <x-badge-status color="primary">
 
-                <x-badge-status color="primary">
+                Enviado al Contador
 
-                    Azul
+            </x-badge-status>
 
-                </x-badge-status>
+            @break
 
-                @break
+        @case('GREEN')
 
-            @case('GREEN')
+            <x-badge-status color="success">
 
-                <x-badge-status color="success">
+                Declarado
 
-                    Verde
+            </x-badge-status>
 
-                </x-badge-status>
+            @break
 
-                @break
-
-        @endswitch
-
-    @else
-
-    <x-badge-status color="secondary">
-
-        Sin evaluar
-
-    </x-badge-status>
-
-@endif
+    @endswitch
 
 </div>
 
-<div class="row g-4 mb-4">
+<div class="row mb-4">
 
     <div class="col-lg-5">
 
         <x-info-card title="Información General">
 
             <x-description-item
+
                 label="Empresa"
+
                 :value="$expedient->company->business_name"
+
             />
 
             <x-description-item
+
                 label="RUC"
+
                 :value="$expedient->company->ruc"
+
             />
 
             <x-description-item
+
                 label="Período"
+
                 :value="$expedient->period->name"
+
             />
 
             <x-description-item
+
                 label="Asistente"
-                :value="$expedient->assistant?->name ?? '-'"
+
+                :value="$expedient->assistant?->name"
+
             />
 
         </x-info-card>
@@ -124,7 +124,7 @@
 
         <x-progress-card
 
-            :percentage="$expedient->progress_percentage"
+            :percentage="$expedient->progressPercentage()"
 
         />
 
@@ -132,47 +132,442 @@
 
 </div>
 
-<x-action-toolbar>
+<div class="row">
 
-    <x-action-button
+    {{-- ===================== --}}
+    {{-- TARJETA VENTAS --}}
+    {{-- ===================== --}}
 
-        :href="route('checklists.index',$expedient)"
+    <div class="col-lg-4">
 
-        icon="bi-list-check"
+        <div class="card shadow-sm h-100">
 
-    >
+            <div class="card-header bg-danger text-white">
 
-        Checklists
+                <div class="d-flex justify-content-between">
 
-    </x-action-button>
+                    <strong>
 
-    @unless($expedient->isDeclared())
+                        VENTAS
+
+                    </strong>
+
+                    @if($salesCompleted)
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                    @endif
+
+                </div>
+
+            </div>
+
+            <div class="card-body">
+
+                <form
+
+                    method="POST"
+
+                    action="{{ route('checklists.update',[$expedient,$ventas]) }}"
+
+                >
+
+                    @csrf
+
+                    @method('PUT')
+                                        @foreach($ventas->questions as $question)
+
+                        @php
+
+                            $answer = $question->answers->first();
+
+                        @endphp
+
+                        <div class="form-check border rounded p-2 mb-2">
+
+                            <input
+
+                                class="form-check-input"
+
+                                type="checkbox"
+
+                                id="ventas{{ $question->id }}"
+
+                                name="answers[{{ $question->id }}]"
+
+                                value="1"
+
+                                {{ $answer ? 'checked' : '' }}
+
+                            >
+
+                            <label
+
+                                class="form-check-label ms-2"
+
+                                for="ventas{{ $question->id }}"
+
+                            >
+
+                                {{ $question->question }}
+
+                            </label>
+
+                        </div>
+
+                    @endforeach
+
+                    <div class="d-grid mt-4">
+
+                        <button
+
+                            type="submit"
+
+                            class="btn btn-primary"
+
+                        >
+
+                            <i class="bi bi-save me-2"></i>
+
+                            Guardar
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {{-- ===================== --}}
+    {{-- TARJETA COMPRAS --}}
+    {{-- ===================== --}}
+
+    <div class="col-lg-4">
+
+        <div class="card shadow-sm h-100">
+
+            <div class="card-header {{ $canOpenPurchases ? 'bg-warning' : 'bg-secondary' }} text-white">
+
+                <div class="d-flex justify-content-between">
+
+                    <strong>
+
+                        COMPRAS
+
+                    </strong>
+
+                    @if($purchasesCompleted)
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                    @endif
+
+                </div>
+
+            </div>
+
+            <div class="card-body">
+
+                @if(!$canOpenPurchases)
+
+                    <div class="text-center py-5">
+
+                        <i class="bi bi-lock-fill display-5 text-secondary"></i>
+
+                        <p class="mt-3 mb-0">
+
+                            Complete Ventas para habilitar esta etapa.
+
+                        </p>
+
+                    </div>
+
+                @else
+
+                    <form
+
+                        method="POST"
+
+                        action="{{ route('checklists.update',[$expedient,$compras]) }}"
+
+                    >
+
+                        @csrf
+
+                        @method('PUT')
+                                            @foreach($compras->questions as $question)
+
+                        @php
+
+                            $answer = $question->answers->first();
+
+                        @endphp
+
+                        <div class="form-check border rounded p-2 mb-2">
+
+                            <input
+
+                                class="form-check-input"
+
+                                type="checkbox"
+
+                                id="compras{{ $question->id }}"
+
+                                name="answers[{{ $question->id }}]"
+
+                                value="1"
+
+                                {{ $answer ? 'checked' : '' }}
+
+                            >
+
+                            <label
+
+                                class="form-check-label ms-2"
+
+                                for="compras{{ $question->id }}"
+
+                            >
+
+                                {{ $question->question }}
+
+                            </label>
+
+                        </div>
+
+                    @endforeach
+
+                    <div class="d-grid mt-4">
+
+                        <button
+
+                            type="submit"
+
+                            class="btn btn-primary"
+
+                        >
+
+                            <i class="bi bi-save me-2"></i>
+
+                            Guardar
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+                @endif
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {{-- ===================== --}}
+    {{-- TARJETA TRIBUTACIÓN --}}
+    {{-- ===================== --}}
+
+    <div class="col-lg-4">
+
+        <div class="card shadow-sm h-100">
+
+            <div class="card-header {{ $canOpenTax ? 'bg-info' : 'bg-secondary' }} text-white">
+
+                <div class="d-flex justify-content-between">
+
+                    <strong>
+
+                        TRIBUTACIÓN
+
+                    </strong>
+
+                    @if($taxCompleted)
+
+                        <i class="bi bi-check-circle-fill"></i>
+
+                    @endif
+
+                </div>
+
+            </div>
+
+            <div class="card-body">
+
+                @if(!$canOpenTax)
+
+                    <div class="text-center py-5">
+
+                        <i class="bi bi-lock-fill display-5 text-secondary"></i>
+
+                        <p class="mt-3 mb-0">
+
+                            Complete Ventas y Compras para habilitar esta etapa.
+
+                        </p>
+
+                    </div>
+
+                @else
+
+                    <form
+
+                        method="POST"
+
+                        action="{{ route('checklists.update',[$expedient,$tributacion]) }}"
+
+                    >
+
+                        @csrf
+
+                        @method('PUT')
+                                            @foreach($tributacion->questions as $question)
+
+                        @php
+
+                            $answer = $question->answers->first();
+
+                        @endphp
+
+                        <div class="form-check border rounded p-2 mb-2">
+
+                            <input
+
+                                class="form-check-input"
+
+                                type="checkbox"
+
+                                id="tributacion{{ $question->id }}"
+
+                                name="answers[{{ $question->id }}]"
+
+                                value="1"
+
+                                {{ $answer ? 'checked' : '' }}
+
+                            >
+
+                            <label
+
+                                class="form-check-label ms-2"
+
+                                for="tributacion{{ $question->id }}"
+
+                            >
+
+                                {{ $question->question }}
+
+                            </label>
+
+                        </div>
+
+                    @endforeach
+
+                    <div class="d-grid mt-4">
+
+                        <button
+
+                            type="submit"
+
+                            class="btn btn-primary"
+
+                        >
+
+                            <i class="bi bi-save me-2"></i>
+
+                            Guardar
+
+                        </button>
+
+                    </div>
+
+                </form>
+
+                @endif
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{{-- ========================================= --}}
+{{-- OBSERVACIONES --}}
+{{-- ========================================= --}}
+
+<div class="card mt-4">
+
+    <div class="card-header">
+
+        <strong>
+
+            Observaciones para el Contador
+
+        </strong>
+
+    </div>
+
+    <div class="card-body">
 
         <form
 
             method="POST"
 
-            action="{{ route('expedients.declare',$expedient) }}"
+            action="{{ route('expedients.observation',$expedient) }}"
 
         >
 
             @csrf
 
-            <button
+            <textarea
 
-                class="btn btn-success"
+                name="assistant_observation"
 
-            >
+                class="form-control"
 
-                <i class="bi bi-check-circle me-2"></i>
+                rows="5"
 
-                Declarar
+                placeholder="Registrar observaciones relevantes para el contador..."
 
-            </button>
+            >{{ old('assistant_observation',$expedient->assistant_observation) }}</textarea>
+
+            <div class="text-end mt-3">
+
+                <button
+
+                    class="btn btn-primary"
+
+                    type="submit"
+
+                >
+
+                    <i class="bi bi-save me-2"></i>
+
+                    Guardar Observaciones
+
+                </button>
+
+            </div>
 
         </form>
 
-    @endunless
+    </div>
+
+</div>
+
+{{-- ========================================= --}}
+{{-- ACCIONES --}}
+{{-- ========================================= --}}
+
+<div class="d-flex justify-content-between mt-4">
 
     <x-action-button
 
@@ -188,85 +583,47 @@
 
     </x-action-button>
 
-</x-action-toolbar>
+    @if(
 
-<div class="card">
+        auth()->user()->isAccountant()
 
-    <div class="card-header">
+        &&
 
-        Respuestas Registradas
+        $taxCompleted
 
-    </div>
+        &&
 
-    <div class="card-body p-0">
+        !$expedient->isDeclared()
 
-        <x-data-table>
+    )
 
-            <thead>
+        <form
 
-            <tr>
+            method="POST"
 
-                <th>Checklist</th>
+            action="{{ route('expedients.declare',$expedient) }}"
 
-                <th>Pregunta</th>
+        >
 
-                <th>Respuesta</th>
+            @csrf
 
-            </tr>
+            <button
 
-            </thead>
+                class="btn btn-success"
 
-            <tbody>
+                type="submit"
 
-            @forelse($expedient->answers as $answer)
+            >
 
-                <tr>
+                <i class="bi bi-check-circle me-2"></i>
 
-                    <td>
+                Declarar
 
-                        {{ $answer->question->checklist->name }}
+            </button>
 
-                    </td>
+        </form>
 
-                    <td>
-
-                        {{ $answer->question->question }}
-
-                    </td>
-
-                    <td>
-
-                        {{ $answer->value }}
-
-                    </td>
-
-                </tr>
-
-            @empty
-
-                <tr>
-
-                    <td colspan="3">
-
-                        <x-empty-state
-
-                            title="Sin respuestas"
-
-                            description="Todavía no se ha respondido ningún checklist."
-
-                        />
-
-                    </td>
-
-                </tr>
-
-            @endforelse
-
-            </tbody>
-
-        </x-data-table>
-
-    </div>
+    @endif
 
 </div>
 

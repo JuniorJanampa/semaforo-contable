@@ -6,30 +6,50 @@ namespace App\Enums\Checklist;
 
 enum ChecklistCode: string
 {
-    case SALES = 'SALES';
-    case PURCHASES = 'PURCHASES';
-    case TAX = 'TAX';
+    case VENTAS = 'VENTAS';
+
+    case COMPRAS = 'COMPRAS';
+
+    case TRIBUTACION = 'TRIBUTACION';
 
     public function label(): string
     {
         return match ($this) {
-            self::SALES => 'Ventas',
-            self::PURCHASES => 'Compras',
-            self::TAX => 'Tributario',
+
+            self::VENTAS => 'Ventas',
+
+            self::COMPRAS => 'Compras',
+
+            self::TRIBUTACION => 'Tributación',
+
         };
     }
 
     public static function values(): array
     {
-        return array_column(self::cases(), 'value');
+        return array_column(
+
+            self::cases(),
+
+            'value'
+
+        );
     }
 
     public static function options(): array
     {
         return collect(self::cases())
-            ->mapWithKeys(fn (self $checklist) => [
-                $checklist->value => $checklist->label(),
-            ])
+
+            ->mapWithKeys(
+
+                fn (self $checklist) => [
+
+                    $checklist->value => $checklist->label(),
+
+                ]
+
+            )
+
             ->toArray();
     }
 }

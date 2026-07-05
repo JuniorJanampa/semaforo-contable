@@ -109,22 +109,6 @@ Route::middleware('auth')->group(function () {
     |--------------------------------------------------------------------------
     */
 
-    Route::get(
-
-        'expedients/{expedient}/checklists',
-
-        [ChecklistController::class, 'index']
-
-    )->name('checklists.index');
-
-    Route::get(
-
-        'expedients/{expedient}/checklists/{checklist}',
-
-        [ChecklistAnswerController::class, 'edit']
-
-    )->name('checklists.edit');
-
     Route::put(
 
         'expedients/{expedient}/checklists/{checklist}',
@@ -138,7 +122,14 @@ Route::middleware('auth')->group(function () {
     | Declaración
     |--------------------------------------------------------------------------
     */
+    Route::post(
 
+        'expedients/{expedient}/observation',
+
+        [ExpedientController::class, 'saveObservation']
+
+    )->name('expedients.observation');
+    
     Route::post(
 
         'expedients/{expedient}/declare',

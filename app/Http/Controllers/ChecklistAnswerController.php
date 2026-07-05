@@ -8,7 +8,6 @@ use App\Http\Requests\Checklist\UpdateChecklistAnswersRequest;
 use App\Models\Checklist;
 use App\Models\Expedient;
 use App\Services\Checklist\ChecklistAnswerService;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 
 class ChecklistAnswerController extends Controller
@@ -16,30 +15,6 @@ class ChecklistAnswerController extends Controller
     public function __construct(
         private readonly ChecklistAnswerService $service
     ) {
-    }
-
-    public function edit(
-        Expedient $expedient,
-        Checklist $checklist
-    ): View {
-
-        $checklist->load([
-            'questions'
-        ]);
-
-        $expedient->load([
-            'company',
-            'period',
-            'answers'
-        ]);
-
-        return view(
-            'checklists.answer',
-            compact(
-                'expedient',
-                'checklist'
-            )
-        );
     }
 
     public function update(
@@ -50,24 +25,32 @@ class ChecklistAnswerController extends Controller
 
         $this->service->save(
 
-            $expedient,
+            expedient: $expedient,
 
-            $request->validated('answers'),
+            checklist: $checklist,
 
-            auth()->id()
+            answers: $request->validated('answers', []),
+
+            userId: auth()->id()
 
         );
 
         return redirect()
 
             ->route(
-                'checklists.index',
+
+                'expedients.show',
+
                 $expedient
+
             )
 
             ->with(
+
                 'success',
-                'Checklist actualizado correctamente.'
+
+                'Checklist guardado correctamente.'
+
             );
 
     }
